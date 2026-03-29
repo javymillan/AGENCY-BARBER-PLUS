@@ -69,7 +69,6 @@ function App() {
   const [isTimeSlotLocked, setIsTimeSlotLocked] = useState(false);
   const [lockedBy, setLockedBy] = useState<string>('');
   const [lastAppointment, setLastAppointment] = useState<any>(null);
-  const [showSummary, setShowSummary] = useState(false);
   const [notificationSent, setNotificationSent] = useState<boolean | null>(null);
   const [isAdminView, setIsAdminView] = useState(() => {
     return localStorage.getItem('isAdminAuthenticated') === 'true';
@@ -97,26 +96,57 @@ function App() {
     };
   }, []);
 
-  // Apply brand colors
+  // ── Smart brand palette generator ──────────────────────────────────────
   useEffect(() => {
-    if (businessData?.primary_color) {
-      document.documentElement.style.setProperty('--primary', businessData.primary_color);
-      // Generate a hover state (slightly darker or lighter)
-      document.documentElement.style.setProperty('--primary-hover', businessData.primary_color + 'cc'); 
-      
-      // Convert hex to rgb for transitions and overlays
-      const hex = businessData.primary_color.replace('#', '');
-      const r = parseInt(hex.substring(0, 2), 16);
-      const g = parseInt(hex.substring(2, 4), 16);
-      const b = parseInt(hex.substring(4, 6), 16);
-      if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
-        document.documentElement.style.setProperty('--primary-rgb', `${r}, ${g}, ${b}`);
-      }
-    }
-    if (businessData?.accent_color) {
-      document.documentElement.style.setProperty('--accent', businessData.accent_color);
-    }
-  }, [businessData]);
+    const hex = (businessData?.primary_color || '#6366f1').replace('#', '');
+    if (!/^[0-9a-fA-F]{6}$/.test(hex)) return;
+
+    // Parse base color
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+
+    // Luminance helper (0–1)
+    const lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+
+    // Blend helpers: mix color with black/white
+    const darken  = (v: number, amt: number) => Math.max(0,   Math.round(v * (1 - amt)));
+    const lighten = (v: number, amt: number) => Math.min(255, Math.round(v + (255 - v) * amt));
+    const toHex   = (rv: number, gv: number, bv: number) =>
+      '#' + [rv, gv, bv].map(x => x.toString(16).padStart(2, '0')).join('');
+
+    // Derived palette
+    const brand      = `#${hex}`;
+    const brandDark  = toHex(darken(r, 0.22), darken(g, 0.22), darken(b, 0.22));
+    const brandLight = toHex(lighten(r, 0.55), lighten(g, 0.55), lighten(b, 0.55));
+    const brandText  = lum > 0.55 ? '#111111' : '#ffffff';   // readable text ON brand
+    const brandGlow  = `rgba(${r},${g},${b},0.40)`;
+    const brandMuted = `rgba(${r},${g},${b},0.12)`;
+    const brandBorder= `rgba(${r},${g},${b},0.30)`;
+
+    // Inject CSS tokens
+    const s = document.documentElement.style;
+    s.setProperty('--brand',        brand);
+    s.setProperty('--brand-dark',   brandDark);
+    s.setProperty('--brand-light',  brandLight);
+    s.setProperty('--brand-text',   brandText);
+    s.setProperty('--brand-glow',   brandGlow);
+    s.setProperty('--brand-muted',  brandMuted);
+    s.setProperty('--brand-border', brandBorder);
+    s.setProperty('--brand-rgb',    `${r},${g},${b}`);
+
+    // New semantic variables for a premium look
+    s.setProperty('--brand-card-bg', 'rgba(15, 15, 15, 0.95)'); // Always dark for premium feel
+    s.setProperty('--brand-card-border', brandBorder);
+
+    // Keep legacy vars pointing to new system (backward compat for any CSS still using them)
+    s.setProperty('--primary',      brand);
+    s.setProperty('--primary-hover',brandDark);
+    s.setProperty('--primary-rgb',  `${r},${g},${b}`);
+    s.setProperty('--accent',       brandLight); // Still keep this but we will use --brand-card-bg for cards
+  }, [businessData?.primary_color]);
+
+
 
   useEffect(() => {
     async function fetchServices() {
@@ -744,19 +774,18 @@ function App() {
                 {step === 1 && <Testimonials />}
 
                 {step !== 4 && (
-                  <div className="max-w-2xl mx-auto bg-accent rounded-xl shadow-xl p-6 transition-all duration-300 animate-fadeIn">
+                  <div className="max-w-2xl mx-auto bg-brand-card rounded-2xl shadow-2xl p-8 transition-all duration-300 animate-fadeIn border border-white/5">
                     <div className="flex justify-between mb-8">
                       {[1, 2, 3].map((i) => (
                         <div
                           key={i}
-                          className={`flex items-center ${step >= i ? 'text-primary' : 'text-secondary'
-                            }`}
+                          className={`flex items-center ${step >= i ? 'text-primary' : 'text-gray-500'}`}
                         >
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 
-                      ${step >= i ? 'border-primary' : 'border-secondary'}`}>
-                            {i}
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500
+                      ${step >= i ? 'border-primary bg-primary/10 shadow-[0_0_15px_var(--brand-glow)]' : 'border-gray-700 bg-gray-800/50'}`}>
+                            <span className="text-sm font-bold">{i}</span>
                           </div>
-                          {i < 3 && <div className={`h-0.5 w-16 mx-2 ${step > i ? 'bg-primary' : 'bg-secondary'}`} />}
+                          {i < 3 && <div className={`h-0.5 w-16 mx-2 rounded-full transition-all duration-500 ${step > i ? 'bg-primary shadow-[0_0_10px_var(--brand-glow)]' : 'bg-gray-800'}`} />}
                         </div>
                       ))}
                     </div>
@@ -791,17 +820,20 @@ function App() {
                                       setSelectedPromotionId(null); // Clear specific promotion selection
                                       setStep(2);
                                     }}
-                                    className={`p-4 rounded-lg border-2 text-left transition-all bg-accent
-                                ${selectedService === service.id
-                                        ? 'border-primary'
-                                        : 'border-default hover:border-primary/50'
-                                      }`}
+                                    className={`p-5 rounded-xl border-2 text-left transition-all duration-300 group
+                                  ${selectedService === service.id
+                                          ? 'border-primary bg-primary/10 shadow-[0_0_20px_var(--brand-glow)] scale-[1.02]'
+                                          : 'border-white/10 bg-white/5 hover:border-primary/40 hover:bg-white/[0.08] hover:scale-[1.01]'
+                                        }`}
                                   >
-                                    <h3 className="font-semibold text-default">{service.name}</h3>
-                                    <p className="text-sm text-secondary">{service.description}</p>
-                                    <div className="mt-2 flex justify-between items-center">
-                                      <span className="text-primary">${service.price}</span>
-                                      <span className="text-sm text-secondary">{service.duration} min</span>
+                                    <h3 className={`font-bold transition-colors ${selectedService === service.id ? 'text-primary' : 'text-white/90'}`}>{service.name}</h3>
+                                    <p className="text-sm text-white/40 mt-1 line-clamp-2">{service.description}</p>
+                                    <div className="mt-5 flex justify-between items-end">
+                                      <span className="text-2xl font-black text-white tracking-tighter">${service.price}</span>
+                                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/30 bg-white/5 border border-white/5 px-3 py-1.5 rounded-full group-hover:border-white/10 group-hover:text-white/50 transition-all">
+                                        <Clock className="w-3 h-3 text-brand" />
+                                        <span>{service.duration} min</span>
+                                      </div>
                                     </div>
                                   </button>
                                 ))}
@@ -811,10 +843,9 @@ function App() {
                                 <button
                                   type="button"
                                   onClick={() => setShowAllServices(!showAllServices)}
-                                  className="w-full mt-6 py-3 px-6 bg-primary text-default font-semibold rounded-lg
-                              hover:bg-primary-hover transition-colors relative group"
+                                  className="w-full mt-6 py-4 px-6 bg-brand/10 border border-brand/20 text-brand font-black rounded-2xl hover:bg-brand/20 transition-all uppercase tracking-[0.2em] text-xs"
                                 >
-                                  <div className="relative flex items-center justify-center gap-2">
+                                  <div className="relative flex items-center justify-center gap-3">
                                     {showAllServices ? (
                                       <>
                                         <Minus className="w-5 h-5" />
@@ -845,7 +876,7 @@ function App() {
                             <span>Volver a Servicios</span>
                           </button>
 
-                          <div className="bg-accent/40 rounded-xl p-5 border border-primary/10">
+                          <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/5 transition-all duration-300">
                             <h2 className="text-xl font-bold mb-4 flex items-center gap-3 text-primary">
                               <Calendar className="w-6 h-6" />
                               Selecciona Fecha y Hora
@@ -856,16 +887,19 @@ function App() {
                             </p>
 
                             <div className="space-y-6">
-                              <input
-                                type="date"
-                                value={selectedDate}
-                                min={new Date().toISOString().split('T')[0]}
-                                onChange={(e) => {
-                                  setSelectedDate(e.target.value);
-                                  setSelectedTime('');
-                                }}
-                                className="w-full p-4 bg-secondary rounded-xl border border-default focus:border-primary transition-all outline-none"
-                              />
+                               <div className="relative group">
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Fecha de la cita</label>
+                                <input
+                                  type="date"
+                                  value={selectedDate}
+                                  min={new Date().toISOString().split('T')[0]}
+                                  onChange={(e) => {
+                                    setSelectedDate(e.target.value);
+                                    setSelectedTime('');
+                                  }}
+                                  className="w-full p-4 bg-gray-900/50 rounded-xl border border-white/10 focus:border-primary focus:bg-gray-900 transition-all outline-none text-white font-medium"
+                                />
+                              </div>
 
                               {selectedDate && (
                                 <AppointmentLockManager
@@ -902,7 +936,7 @@ function App() {
                             <span>Volver a Fecha</span>
                           </button>
 
-                          <div className="bg-accent/40 rounded-xl p-6 border border-primary/10">
+                          <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/5">
                             <h2 className="text-2xl font-bold mb-6 text-primary flex items-center gap-3">
                               <User className="w-7 h-7" />
                               Tus Datos de Contacto
@@ -912,48 +946,48 @@ function App() {
 
                             <div className="space-y-5">
                               <div>
-                                <label className="block text-sm font-medium text-secondary mb-2">Nombre Completo</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Nombre Completo</label>
                                 <input
                                   required
                                   type="text"
                                   value={clientName}
                                   onChange={(e) => setClientName(e.target.value)}
-                                  className="w-full p-4 bg-secondary rounded-xl border border-default focus:border-primary transition-all outline-none placeholder:text-secondary/30"
+                                  className="w-full p-4 bg-gray-900/50 rounded-xl border border-white/10 focus:border-primary focus:bg-gray-900 transition-all outline-none text-white"
                                   placeholder="Ej. Juan Pérez"
                                 />
                               </div>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
-                                  <label className="block text-sm font-medium text-secondary mb-2">Teléfono WhatsApp</label>
+                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Teléfono WhatsApp</label>
                                   <input
                                     required
                                     type="tel"
                                     value={clientPhone}
                                     onChange={(e) => setClientPhone(formatPhoneNumber(e.target.value))}
-                                    className="w-full p-4 bg-secondary rounded-xl border border-default focus:border-primary transition-all outline-none placeholder:text-secondary/30 text-primary font-mono"
+                                    className="w-full p-4 bg-gray-900/50 rounded-xl border border-white/10 focus:border-primary focus:bg-gray-900 transition-all outline-none text-primary font-mono font-bold"
                                     placeholder="811 000 0000"
                                   />
                                   {phoneError && <p className="mt-2 text-xs text-red-500 font-medium">{phoneError}</p>}
                                 </div>
                                 <div>
-                                  <label className="block text-sm font-medium text-secondary mb-2">Correo Electrónico</label>
+                                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Correo Electrónico</label>
                                   <input
                                     required
                                     type="email"
                                     value={clientEmail}
                                     onChange={(e) => setClientEmail(e.target.value)}
-                                    className="w-full p-4 bg-secondary rounded-xl border border-default focus:border-primary transition-all outline-none placeholder:text-secondary/30"
+                                    className="w-full p-4 bg-gray-900/50 rounded-xl border border-white/10 focus:border-primary focus:bg-gray-900 transition-all outline-none text-white"
                                     placeholder="juan@ejemplo.com"
                                   />
                                   {emailError && <p className="mt-2 text-xs text-red-500 font-medium text-left">{emailError}</p>}
                                 </div>
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-secondary mb-2">Notas adicionales (opcional)</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Notas adicionales (opcional)</label>
                                 <textarea
                                   value={notes}
                                   onChange={(e) => setNotes(e.target.value)}
-                                  className="w-full p-4 bg-secondary rounded-xl border border-default focus:border-primary transition-all outline-none h-32 resize-none placeholder:text-secondary/30"
+                                  className="w-full p-4 bg-gray-900/50 rounded-xl border border-white/10 focus:border-primary focus:bg-gray-900 transition-all outline-none h-32 resize-none text-white"
                                   placeholder="¿Algún detalle especial que debamos saber?"
                                 />
                               </div>
@@ -984,31 +1018,31 @@ function App() {
                       <CheckCircle className="w-16 h-16 text-green-500 relative z-10" />
                     </div>
                     <h2 className="text-4xl font-black mb-6 tracking-tight text-white">¡LISTO, TE ESPERAMOS!</h2>
-                    <div className="bg-accent/40 backdrop-blur-xl border border-white/5 rounded-3xl p-8 mb-10 text-left shadow-2xl relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16" />
-                      <p className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <div className="bg-brand-card border border-brand/20 backdrop-blur-xl rounded-3xl p-8 mb-10 text-left shadow-2xl relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 opacity-30" />
+                      <p className="text-xl font-bold mb-4 flex items-center gap-2 text-white">
                         <span className="w-1.5 h-6 bg-primary rounded-full" />
                         {lastAppointment.service.name}
                       </p>
                       <div className="space-y-4 text-secondary">
                         <div className="flex items-center gap-4 text-lg">
                           <Calendar className="w-6 h-6 text-primary" />
-                          <span className="font-medium text-default">{format(new Date(lastAppointment.date + 'T00:00:00'), "EEEE dd 'de' MMMM", { locale: es })}</span>
+                          <span className="font-medium text-white/90">{format(new Date(lastAppointment.date + 'T00:00:00'), "EEEE dd 'de' MMMM", { locale: es })}</span>
                         </div>
                         <div className="flex items-center gap-4 text-lg">
                           <Clock className="w-6 h-6 text-primary" />
-                          <span className="font-medium text-default">Hora: {lastAppointment.time}</span>
+                          <span className="font-medium text-white/90">Hora: {lastAppointment.time}</span>
                         </div>
                       </div>
                       
-                      <div className="mt-8 pt-8 border-t border-white/5">
+                      <div className="mt-8 pt-8 border-t border-white/10">
                         <a
                           href={generateGoogleCalendarLink(lastAppointment, businessData)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full flex items-center justify-center gap-3 py-4 bg-accent border border-white/10 rounded-2xl hover:bg-accent/80 transition-all font-bold text-sm"
+                          className="w-full flex items-center justify-center gap-3 py-4 bg-brand/10 border border-brand/30 rounded-2xl hover:bg-brand/20 transition-all font-bold text-sm text-brand"
                         >
-                          <Plus className="w-5 h-5 text-primary" />
+                          <Plus className="w-5 h-5 text-brand" />
                           AGREGAR A MI CALENDARIO
                         </a>
                       </div>
@@ -1041,29 +1075,29 @@ function App() {
               )}
 
               {showLoginForm && (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-                  <div className="bg-accent border border-white/10 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fadeIn">
+                  <div className="bg-brand-card border border-brand/20 rounded-3xl p-8 w-full max-w-md shadow-2xl relative overflow-hidden">
                     <button 
                       onClick={() => setShowLoginForm(false)}
-                      className="absolute top-6 right-6 text-secondary/40 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full z-10"
+                      className="absolute top-6 right-6 text-white/40 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full z-10"
                       aria-label="Cerrar modal"
                     >
                       <X className="w-6 h-6" />
                     </button>
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-primary/0" />
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-transparent" />
                     <h3 className="text-2xl font-bold mb-6 text-white flex items-center gap-3">
                       <User className="w-7 h-7 text-primary" />
                       Acceder a tu Perfil
                     </h3>
                     <form onSubmit={handleLogin} className="space-y-5">
                       <div>
-                        <label className="block text-sm font-medium text-secondary mb-2">Correo Electrónico</label>
+                        <label className="block text-sm font-medium text-white/70 mb-2">Correo Electrónico</label>
                         <input
                           required
                           type="email"
                           value={clientEmail}
                           onChange={(e) => setClientEmail(e.target.value)}
-                          className="w-full p-4 bg-secondary rounded-xl border border-white/5 focus:border-primary transition-all outline-none"
+                          className="w-full p-4 bg-white/5 text-white rounded-xl border border-white/10 focus:border-primary transition-all outline-none placeholder:text-white/20"
                           placeholder="juan@ejemplo.com"
                         />
                         {emailError && <p className="mt-2 text-xs text-red-500">{emailError}</p>}
@@ -1086,20 +1120,33 @@ function App() {
                 </div>
               )}
 
-              <footer className="mt-20 py-12 border-t border-white/5 bg-accent/20">
-                <div className="container mx-auto px-4 text-center">
-                  <div className="flex justify-center gap-6 mb-8">
+              <footer className="mt-24 py-16 border-t border-white/5 bg-[#050505] relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-brand/20 to-transparent" />
+                <div className="container mx-auto px-4 text-center relative z-10">
+                  <div className="flex justify-center gap-8 mb-10">
                     <ThemeButton />
                   </div>
-                  <p className="text-secondary/60 text-sm mb-4">
+                  <div className="mb-8 overflow-hidden">
+                    {businessData?.logo_url ? (
+                      <img 
+                        src={businessData.logo_url} 
+                        alt={businessData.name} 
+                        className="w-16 h-16 mx-auto object-contain mb-6 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-700"
+                      />
+                    ) : (
+                      <Store className="w-8 h-8 mx-auto text-white/20 mb-4" />
+                    )}
+                    <p className="text-white/40 text-lg font-black tracking-tighter uppercase italic">{businessData?.name}</p>
+                  </div>
+                  <p className="text-white/20 text-[10px] font-bold tracking-[0.3em] uppercase mb-10">
                     © {new Date().getFullYear()} {businessData?.name}. Todos los derechos reservados.
                   </p>
                   <button
                     onClick={() => setIsAdminView(true)}
-                    className="text-[10px] uppercase tracking-widest text-primary/40 hover:text-primary transition-colors font-bold flex items-center gap-2 mx-auto"
+                    className="group py-2 px-6 border border-white/5 rounded-full text-[10px] uppercase tracking-[0.2em] text-white/30 hover:text-brand hover:border-brand/40 transition-all font-black flex items-center gap-3 mx-auto"
                   >
-                    <Settings className="w-3 h-3" />
-                    Acceso Administrador
+                    <Settings className="w-3 h-3 group-hover:rotate-90 transition-transform duration-500" />
+                    Panel de Control
                   </button>
                 </div>
               </footer>

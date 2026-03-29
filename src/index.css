@@ -54,9 +54,20 @@
   border-color: var(--border);
 }
 
-.hover\:bg-primary-hover:hover {
-  background-color: var(--primary-hover);
+.bg-brand-card {
+  background-color: var(--brand-card-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--brand-card-border);
 }
+
+.border-brand {
+  border-color: var(--brand);
+}
+
+.hover\:bg-primary-hover:hover {
+  background-color: var(--brand-dark);
+}
+
 
 /* Animations */
 @keyframes fadeIn {

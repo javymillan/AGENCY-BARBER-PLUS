@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, RefreshCw, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { Clock, RefreshCw, X, CheckCircle, Info, AlertCircle } from 'lucide-react';
 import { useRealTimeAvailability } from '../hooks/useRealTimeAvailability';
 import toast from 'react-hot-toast';
 
@@ -91,17 +91,17 @@ export function TimeSlotSelector({
   const getTimeSlotStatus = (slot: any) => {
     if (!slot.available) {
       return {
-        className: 'bg-gray-200 text-gray-500 cursor-not-allowed border-red-500 border-4',
+        className: 'bg-white/5 text-white/20 cursor-not-allowed border-red-500/30 border-2 opacity-50',
         colorType: 'red',
-        icon: <AlertCircle className="w-4 h-4" />,
+        icon: <X className="w-4 h-4" />,
         disabled: true
       };
     }
 
     if (slot.time === selectedTime) {
       return {
-        className: 'bg-primary text-white border-green-500 border-4',
-        colorType: 'green',
+        className: 'bg-primary text-brand-text border-primary border-2 shadow-lg shadow-primary/20 scale-105 z-10',
+        colorType: 'brand',
         icon: <CheckCircle className="w-4 h-4" />,
         disabled: false
       };
@@ -109,23 +109,23 @@ export function TimeSlotSelector({
 
     // Determinar color basado en disponibilidad
     const availableSpots = slot.availableSpots || 1;
-    const totalSpots = slot.totalSpots || 1; // Obtener del slot o usar 1 por defecto
+    const totalSpots = slot.totalSpots || 1;
     
-    let borderColor = 'border-green-500'; // Verde por defecto (totalmente disponible)
-    let colorType = 'green';
+    let borderColor = 'border-brand/30';
+    let colorType = 'brand';
     
     if (availableSpots === 0) {
-      borderColor = 'border-red-500'; // Rojo (totalmente ocupado)
+      borderColor = 'border-red-500/30';
       colorType = 'red';
     } else if (availableSpots < totalSpots && totalSpots > 1) {
-      borderColor = 'border-orange-500'; // Naranja (parcialmente disponible)
+      borderColor = 'border-orange-500/40';
       colorType = 'orange';
     }
 
     return {
-      className: `bg-accent text-default ${borderColor} border-4 hover:border-primary hover:bg-primary/10`,
+      className: `bg-brand-card text-white ${borderColor} border-2 hover:border-brand hover:bg-brand/10`,
       colorType,
-      icon: <Clock className="w-4 h-4" />,
+      icon: <Clock className="w-4 h-4 text-brand" />,
       disabled: false
     };
   };
@@ -239,31 +239,38 @@ export function TimeSlotSelector({
       )}
 
       {/* Leyenda de colores */}
-      <div className="mt-6 p-4 bg-accent/50 rounded-lg border border-default">
-        <div className="flex items-center gap-2 mb-3">
-          <Info className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-default">Significado de los colores</h3>
+      <div className="mt-8 p-6 bg-brand-card border border-brand/20 backdrop-blur-xl rounded-3xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-brand/5 rounded-full blur-2xl opacity-30" />
+        
+        <div className="flex items-center gap-3 mb-5">
+          <Info className="w-5 h-5 text-brand" />
+          <h3 className="font-bold text-white uppercase tracking-widest text-xs">Estado de disponibilidad</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded border-4 border-green-500 bg-accent"></div>
-            <span className="text-default">Totalmente disponible</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-[10px] font-bold tracking-widest uppercase">
+          <div className="flex items-center gap-3 text-white/60">
+            <div className="w-5 h-5 rounded-lg border-2 border-brand/40 bg-brand/10"></div>
+            <span>Disponible</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded border-4 border-orange-500 bg-accent"></div>
-            <span className="text-default">Disponibilidad limitada</span>
+          <div className="flex items-center gap-3 text-white/60">
+            <div className="w-5 h-5 rounded-lg border-2 border-orange-500/40 bg-orange-500/10"></div>
+            <span>Limitada</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded border-4 border-red-500 bg-gray-200"></div>
-            <span className="text-default">No disponible</span>
+          <div className="flex items-center gap-3 text-white/60">
+            <div className="w-5 h-5 rounded-lg border-2 border-red-500/30 bg-white/5 opacity-50"></div>
+            <span>Ocupado</span>
           </div>
         </div>
         
         {/* Información adicional sobre restricciones */}
-        <div className="mt-4 pt-3 border-t border-default text-xs text-secondary">
-          <p>• Los horarios respetan la capacidad del personal disponible</p>
-          <p>• Se consideran horarios de descanso y restricciones del negocio</p>
-          <p>• La disponibilidad se actualiza en tiempo real</p>
+        <div className="mt-6 pt-5 border-t border-white/5 text-[9px] text-white/30 space-y-2 uppercase tracking-tighter">
+          <p className="flex items-center gap-2">
+            <span className="w-1 h-1 bg-brand rounded-full" />
+            Sincronización en tiempo real con el personal
+          </p>
+          <p className="flex items-center gap-2">
+            <span className="w-1 h-1 bg-brand rounded-full" />
+            Actualización automática cada 30 segundos
+          </p>
         </div>
       </div>
       {timeSlots.length === 0 && !loading && (

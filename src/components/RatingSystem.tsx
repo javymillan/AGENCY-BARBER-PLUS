@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { Star } from 'lucide-react';
+import { Star, X, MessageSquare, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface RatingSystemProps {
@@ -32,7 +32,6 @@ export const RatingSystem = React.memo(({ appointmentId, clientEmail, onClose }:
       if (!appointmentId) return;
       
       try {
-        // First get client name from appointment
         const { data: appointmentData } = await supabase
           .from('appointments')
           .select('client_name')
@@ -43,17 +42,13 @@ export const RatingSystem = React.memo(({ appointmentId, clientEmail, onClose }:
           setClientName(appointmentData.client_name);
         }
 
-        // Check for existing testimonial - remove .single() to avoid PGRST116 error
         const { data, error } = await supabase
           .from('testimonials')
           .select('*')
           .eq('appointment_id', appointmentId);
 
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
 
-        // Check if data array has any results
         if (data && data.length > 0) {
           const testimonial = data[0] as Testimonial;
           setExistingRating(testimonial);
@@ -80,7 +75,6 @@ export const RatingSystem = React.memo(({ appointmentId, clientEmail, onClose }:
     
     try {
       if (existingRating) {
-        // Update existing rating
         const { error } = await supabase
           .from('testimonials')
           .update({
@@ -92,7 +86,6 @@ export const RatingSystem = React.memo(({ appointmentId, clientEmail, onClose }:
         if (error) throw error;
         toast.success('¡Tu valoración ha sido actualizada!');
       } else {
-        // Create new rating
         const { error } = await supabase
           .from('testimonials')
           .insert([
@@ -118,13 +111,11 @@ export const RatingSystem = React.memo(({ appointmentId, clientEmail, onClose }:
     }
   };
 
-  // Memoizar la función de envío para evitar recreaciones innecesarias
-  const handleSubmitCallback = useCallback(handleSubmit, [rating, comment, existingRating, onClose]);
+  const handleSubmitCallback = useCallback(handleSubmit, [rating, comment, existingRating, onClose, clientName, appointmentId]);
   
-  // Memoizar las estrellas de calificación
   const ratingStars = useMemo(() => {
     return (
-      <div className="flex space-x-2">
+      <div className="flex space-x-4">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
@@ -132,11 +123,11 @@ export const RatingSystem = React.memo(({ appointmentId, clientEmail, onClose }:
             onClick={() => setRating(star)}
             onMouseEnter={() => setHoveredRating(star)}
             onMouseLeave={() => setHoveredRating(0)}
-            className="focus:outline-none transition-transform hover:scale-110"
+            className="focus:outline-none transition-all hover:scale-125 transform"
             aria-label={`Calificar ${star} estrellas`}
           >
             <Star
-              className={`w-8 h-8 ${(hoveredRating || rating) >= star ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'} transition-colors`}
+              className={`w-10 h-10 ${(hoveredRating || rating) >= star ? 'fill-brand text-brand drop-shadow-[0_0_10px_var(--brand-glow)]' : 'text-white/10'} transition-all duration-300`}
             />
           </button>
         ))}
@@ -145,53 +136,69 @@ export const RatingSystem = React.memo(({ appointmentId, clientEmail, onClose }:
   }, [hoveredRating, rating]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-        <div className="p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-700">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white text-center">
-            {existingRating ? '¡Actualiza tu valoración!' : '¿Cómo calificarías tu experiencia?'}
-          </h2>
+    <div className="fixed inset-0 bg-black/95 backdrop-blur-sm z-[110] flex items-center justify-center p-4 animate-fadeIn">
+      <div className="bg-brand-card border border-brand/20 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-md overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand via-brand-dark to-transparent opacity-50" />
+        
+        <div className="p-8 border-b border-white/5 flex items-center justify-between">
+          <div className="flex-1 text-center">
+            <h2 className="text-2xl font-black text-white tracking-tighter uppercase italic">
+              {existingRating ? 'Actualizar Reseña' : 'Tu Experiencia'}
+            </h2>
+          </div>
+          <button 
+            onClick={onClose}
+            className="absolute top-6 right-8 p-2 text-white/40 hover:text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmitCallback} className="p-8 space-y-6">
+        <form onSubmit={handleSubmitCallback} className="p-8 space-y-8">
           <div className="flex flex-col items-center">
-            <p className="mb-4 text-slate-600 dark:text-slate-300 font-medium">
-              {existingRating ? 'Tu calificación anterior:' : 'Comparte tu experiencia'}
+            <p className="mb-6 text-[10px] text-white/40 font-black uppercase tracking-[0.3em]">
+              {existingRating ? 'Calificación guardada' : 'Selecciona una puntuación'}
             </p>
             {ratingStars}
           </div>
 
-          <div>
-            <label htmlFor="comment" className="block mb-3 text-slate-700 dark:text-slate-200 font-medium">
-              Comentario
+          <div className="relative group">
+            <label htmlFor="comment" className="block mb-3 text-[10px] text-white/30 font-black uppercase tracking-[0.2em] ml-1">
+              Testimonio
             </label>
-            <textarea
-              id="comment"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="w-full p-4 border-2 border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              rows={4}
-              placeholder="Comparte tu experiencia con nosotros..."
-            />
+            <div className="relative">
+              <textarea
+                id="comment"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-white/20 focus:border-brand/40 transition-all outline-none h-40 resize-none text-sm font-medium pr-12"
+                placeholder="Cuéntanos cómo fue tu servicio..."
+              />
+              <MessageSquare className="absolute top-5 right-5 w-5 h-5 text-white/10 group-focus-within:text-brand/40 transition-colors" />
+            </div>
           </div>
           
-          <div className="flex space-x-3 pt-4">
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full py-5 bg-brand text-white text-[12px] font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] active:scale-95 shadow-[0_0_30px_var(--brand-glow)] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              {submitting ? (
+                 <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white/30" />
+              ) : (
+                <>
+                  {existingRating ? 'ACTUALIZAR RESEÑA' : 'PUBLICAR COMENTARIO'}
+                  <Send className="w-4 h-4" />
+                </>
+              )}
+            </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 border-2 border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              disabled={submitting}
+              className="w-full mt-4 text-[10px] text-white/20 hover:text-white/40 font-black uppercase tracking-widest transition-colors py-2"
             >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors flex items-center justify-center"
-              disabled={submitting}
-            >
-              {submitting ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-              ) : existingRating ? 'Actualizar' : 'Enviar valoración'}
+              Cerrar
             </button>
           </div>
         </form>
