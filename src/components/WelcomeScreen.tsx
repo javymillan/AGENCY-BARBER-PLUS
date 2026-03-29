@@ -76,7 +76,7 @@ export function WelcomeScreen({ onLogin, onNewUser }: WelcomeScreenProps) {
             <img 
               src={businessData.logo_url} 
               alt={businessData.name}
-              className="w-64 h-64 object-contain transition-all duration-300 logo-neon logo-neon-animated"
+              className="w-80 h-80 object-contain transition-all duration-300 logo-neon logo-neon-animated"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.onerror = null;
@@ -84,17 +84,17 @@ export function WelcomeScreen({ onLogin, onNewUser }: WelcomeScreenProps) {
                 const parent = target.parentElement;
                 if (parent) {
                   const storeIcon = document.createElement('div');
-                  storeIcon.innerHTML = '<Store class="w-32 h-32 text-primary" />';
+                  storeIcon.innerHTML = '<Store class="w-40 h-40 text-primary" />';
                   parent.appendChild(storeIcon.firstChild as Node);
                 }
               }}
             />
           ) : loading ? (
-            <div className="animate-pulse flex items-center justify-center w-64 h-64">
-              <div className="rounded-full bg-primary/20 h-32 w-32"></div>
+            <div className="animate-pulse flex items-center justify-center w-80 h-80">
+              <div className="rounded-full bg-primary/20 h-40 w-40"></div>
             </div>
           ) : (
-            <Store className="w-32 h-32 text-primary" />
+            <Store className="w-40 h-40 text-primary" />
           )}
         </div>
         <h1 className="text-6xl font-black mb-4 text-white tracking-tighter uppercase italic">
