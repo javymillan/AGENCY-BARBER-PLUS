@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-rgb: 217, 119, 6; /* Default amber-600 */
+}
+
+:root[data-theme="dark"] {
+  --primary: theme('colors.amber.500');
+  --primary-hover: theme('colors.amber.400');
+  --secondary: theme('colors.gray.900');
+  --accent: theme('colors.gray.800');
+  --text: theme('colors.white');
+  --text-secondary: theme('colors.gray.400');
+  --border: theme('colors.gray.700');
+}
+
+:root[data-theme="light"] {
+  --primary: theme('colors.sky.500');
+  --primary-hover: theme('colors.sky.600');
+  --secondary: theme('colors.gray.50');
+  --accent: theme('colors.white');
+  --text: theme('colors.gray.900');
+  --text-secondary: theme('colors.gray.600');
+  --border: theme('colors.gray.200');
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.bg-secondary {
+  background-color: var(--secondary);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.text-default {
+  color: var(--text);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.border-default {
+  border-color: var(--border);
+}
+
+.hover\:bg-primary-hover:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-scaleUp {
+  animation: scaleUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Add smooth transitions for theme changes */
+.theme-transition {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Apply transitions to common elements */
+body,
+button,
+input,
+select,
+textarea {
+  @apply theme-transition;
+}

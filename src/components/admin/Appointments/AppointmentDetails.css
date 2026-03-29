@@ -1,0 +1,357 @@
+/* Estilos para el Modal de Detalles de Cita - DISEÑO SIMPLIFICADO */
+.appointment-details-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.appointment-details-container {
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  position: relative;
+}
+
+/* Header del modal */
+.appointment-details-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 2px solid var(--border-color);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 16px 16px 0 0;
+  color: white;
+}
+
+.appointment-details-modal .modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.appointment-details-modal .close-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.appointment-details-modal .close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Contenido principal */
+.appointment-details-content {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Secciones principales */
+.appointment-info-section,
+.client-info-section {
+  background: var(--surface-color);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.appointment-info-section h3,
+.client-info-section h3 {
+  margin: 0 0 15px 0;
+  color: var(--text-color);
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+/* Listas de información simplificadas */
+.info-list,
+.client-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.info-row,
+.client-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.info-row svg,
+.client-row svg {
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.info-label,
+.client-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 80px;
+  font-size: 14px;
+}
+
+.info-value,
+.client-value {
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 14px;
+  flex: 1;
+}
+
+/* Estado de la cita */
+.status-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 80px;
+  font-size: 14px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.pending {
+  background: rgba(251, 191, 36, 0.2);
+  color: #d97706;
+  border: 1px solid #d97706;
+}
+
+.status-badge.completed {
+  background: rgba(16, 185, 129, 0.2);
+  color: #059669;
+  border: 1px solid #059669;
+}
+
+.status-badge.cancelled {
+  background: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+  border: 1px solid #dc2626;
+}
+
+/* Botones de contacto */
+.contact-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.contact-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.whatsapp-btn {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
+.email-btn {
+  background: linear-gradient(135deg, #4285F4, #1976D2);
+  color: white;
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.3);
+}
+
+.email-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
+}
+
+.email-btn:disabled {
+  background: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Notas */
+.notes-section {
+  background: var(--surface-color);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.notes-section h3 {
+  margin: 0 0 10px 0;
+  color: var(--text-color);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.notes-content {
+  color: var(--text-color);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Acciones de administrador */
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.action-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 140px;
+}
+
+.complete-btn {
+  background: var(--success-color);
+  color: white;
+}
+
+.complete-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background: var(--error-color);
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.revert-btn {
+  background: var(--warning-color);
+  color: white;
+}
+
+.revert-btn:hover {
+  background: #d97706;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .appointment-details-modal {
+    padding: 10px;
+  }
+  
+  .appointment-details-container {
+    max-width: 100%;
+    border-radius: 12px;
+  }
+  
+  .appointment-details-modal .modal-header {
+    padding: 15px 20px;
+  }
+  
+  .appointment-details-modal .modal-header h2 {
+    font-size: 18px;
+  }
+  
+  .appointment-details-content {
+    padding: 20px;
+    gap: 15px;
+  }
+  
+  .appointment-info-section,
+  .client-info-section,
+  .notes-section {
+    padding: 15px;
+  }
+  
+  .contact-buttons {
+    flex-direction: column;
+  }
+  
+  .admin-actions {
+    flex-direction: column;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+  
+  .info-row,
+  .client-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .info-label,
+  .client-label {
+    min-width: 70px;
+  }
+}
+
+/* Modo claro */
+.light-mode .appointment-details-modal .modal-header {
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+}
+
+.light-mode .appointment-info-section,
+.light-mode .client-info-section,
+.light-mode .notes-section {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}

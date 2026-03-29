@@ -1,0 +1,419 @@
+/* ======================================
+   APPOINTMENTS LIST – PANORAMIC VIEW
+   ====================================== */
+
+/* Backdrop */
+.al-backdrop {
+  position: fixed;
+  /* Start BELOW the fixed admin header (~80px) + nav bar (~58px) */
+  top: 138px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 16px 32px;
+  z-index: 900;
+  overflow-y: auto;
+}
+
+/* Modal base */
+.al-modal {
+  background: var(--card-bg, #13151f);
+  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  border-radius: 20px;
+  width: 520px;
+  max-width: 100%;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+  animation: al-pop 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 138px - 40px);
+}
+
+/* Wide variant for all-view */
+.al-modal--wide {
+  width: 820px;
+}
+
+@keyframes al-pop {
+  from { opacity: 0; transform: scale(0.95) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Header ─────────────────────────────────── */
+.al-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.08));
+  flex-shrink: 0;
+}
+
+.al-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: var(--primary-color, #6366f1);
+}
+
+.al-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-color, #fff);
+  text-transform: capitalize;
+}
+
+.al-subtitle {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary, rgba(255,255,255,0.5));
+}
+
+.al-close {
+  background: var(--surface-color, rgba(255,255,255,0.06));
+  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  border-radius: 8px;
+  padding: 6px;
+  color: var(--text-secondary, rgba(255,255,255,0.5));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.al-close:hover {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+}
+
+/* ── Revenue Bar ───────────────────────────── */
+.al-revenue-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 12px 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.08) 0%,
+    rgba(16, 185, 129, 0.06) 100%
+  );
+  border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.07));
+  flex-shrink: 0;
+}
+
+.al-revenue-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  color: var(--primary-color, #6366f1);
+}
+
+.al-revenue-item--muted {
+  color: #10b981;
+}
+
+.al-revenue-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary, rgba(255,255,255,0.5));
+  flex: 1;
+}
+
+.al-revenue-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: inherit;
+}
+
+.al-revenue-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--border-color, rgba(255,255,255,0.1));
+  margin: 0 20px;
+}
+
+/* ── Filter Tabs ───────────────────────────── */
+.al-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.07));
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.al-filters::-webkit-scrollbar { display: none; }
+
+.al-filters-icon {
+  color: var(--text-secondary, rgba(255,255,255,0.4));
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.al-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+  background: transparent;
+  color: var(--text-secondary, rgba(255,255,255,0.5));
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.al-filter-btn:hover {
+  border-color: var(--primary-color, #6366f1);
+  color: var(--text-color, #fff);
+}
+
+.al-filter-btn--active {
+  background: var(--primary-color, #6366f1);
+  border-color: var(--primary-color, #6366f1);
+  color: #fff;
+}
+
+.al-filter-count {
+  background: rgba(255,255,255,0.15);
+  padding: 1px 6px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.al-filter-btn--active .al-filter-count {
+  background: rgba(0,0,0,0.2);
+}
+
+/* ── Body ───────────────────────────────────── */
+.al-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.al-body::-webkit-scrollbar { width: 5px; }
+.al-body::-webkit-scrollbar-track { background: transparent; }
+.al-body::-webkit-scrollbar-thumb {
+  background: var(--border-color, rgba(255,255,255,0.15));
+  border-radius: 4px;
+}
+
+/* Empty state */
+.al-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: var(--text-secondary, rgba(255,255,255,0.4));
+  text-align: center;
+}
+
+.al-empty p { font-size: 0.95rem; margin: 0; }
+
+/* ── DAY GROUPS (All-view) ──────────────────── */
+.al-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.al-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.al-day-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--border-color, rgba(255,255,255,0.15));
+}
+
+.al-day-today {
+  background: rgba(99, 102, 241, 0.1);
+  border-left-color: var(--primary-color, #6366f1);
+}
+
+.al-day-text {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--text-color, #fff);
+}
+
+.al-day-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.al-day-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary, rgba(255,255,255,0.5));
+  background: rgba(255,255,255,0.08);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.al-day-revenue {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16,185,129,0.1);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+/* Cards grid inside a day group */
+.al-day-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+}
+
+/* ── SINGLE DAY LIST ────────────────────────── */
+.al-single-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── CARD ───────────────────────────────────── */
+.al-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 11px 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 0;
+}
+
+.al-card:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+/* Full-width card variant for single-day view */
+.al-card--full {
+  grid-template-columns: 60px 1fr auto;
+}
+
+.al-card-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary-color, #6366f1);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.al-card-time svg {
+  opacity: 0.6;
+}
+
+.al-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.al-card-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-color, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.al-card-service {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  color: var(--text-secondary, rgba(255,255,255,0.55));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.al-card-service em {
+  font-style: normal;
+  color: #10b981;
+  font-weight: 600;
+}
+
+.al-card-phone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: 2px;
+}
+
+.al-card-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--status-color, #f59e0b);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--status-color, #f59e0b) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--status-color, #f59e0b) 25%, transparent);
+  align-self: flex-start;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .al-modal--wide { width: 100%; }
+  .al-day-cards { grid-template-columns: 1fr; }
+  .al-body { padding: 14px 16px; }
+  .al-revenue-bar { padding: 10px 16px; }
+  .al-filters { padding: 10px 16px; }
+}

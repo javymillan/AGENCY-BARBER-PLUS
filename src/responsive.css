@@ -1,0 +1,318 @@
+/* Mejoras de diseño responsivo, accesibilidad y animaciones */
+
+/* Variables para breakpoints */
+:root {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --transition-fast: 150ms;
+  --transition-normal: 300ms;
+  --transition-slow: 500ms;
+  --focus-ring-color: rgba(var(--primary-rgb), 0.5);
+  --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  --animation-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 1rem;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Extraer valores RGB de los colores primarios para usarlos en transparencias */
+:root[data-theme="dark"] {
+  --primary-rgb: 245, 158, 11; /* amber.500 */
+  --focus-visible-color: rgba(245, 158, 11, 0.5);
+}
+
+:root[data-theme="light"] {
+  --primary-rgb: 14, 165, 233; /* sky.500 */
+  --focus-visible-color: rgba(14, 165, 233, 0.5);
+}
+
+/* Mejoras de accesibilidad según WCAG */
+:focus-visible {
+  outline: 3px solid var(--focus-visible-color);
+  outline-offset: 2px;
+  border-radius: var(--border-radius-sm);
+  transition: outline-color var(--transition-normal);
+}
+
+/* Mejora para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Mejoras de contraste para accesibilidad */
+.high-contrast-text {
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Animaciones mejoradas */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s var(--animation-timing) forwards;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s var(--animation-timing) forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Estilos responsivos mejorados */
+.animate-fadeIn {
+  animation: fadeIn 0.5s var(--animation-timing) forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.5s var(--animation-timing) forwards;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.5s var(--animation-timing) forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s var(--animation-timing) infinite;
+}
+
+.animate-bounce {
+  animation: bounce 2s var(--animation-bounce) infinite;
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: var(--animation-timing);
+  transition-duration: var(--transition-normal);
+}
+
+.hover-scale {
+  transition: transform var(--transition-normal);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Mejoras para dispositivos móviles */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  /* Mejoras de espaciado para móviles */
+  .mobile-py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .mobile-px-2 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  /* Ajustes de tamaño para botones en móviles */
+  button, .button {
+    min-height: 44px; /* Tamaño mínimo para elementos táctiles según WCAG */
+  }
+  
+  /* Mejora de legibilidad en móviles */
+  input, select, textarea {
+    font-size: 16px; /* Evita zoom automático en iOS */
+  }
+  
+  /* Grid responsivo para testimonios */
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Mejoras para tablets */
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Ajustes para tablets */
+  .tablet-grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Tamaño mínimo para elementos táctiles */
+  button, .button, a {
+    min-height: 36px;
+  }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 641px) and (max-width: 768px) {
+  .container {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+
+  /* Mejora de espaciado en tablet */
+  .space-y-6 > * {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Animaciones sutiles */
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp var(--transition-normal) ease-out;
+}
+
+.animate-pulse-subtle {
+  animation: pulseSoft 2s infinite;
+}
+
+/* Transiciones mejoradas */
+.hover-scale {
+  transition: transform var(--transition-fast) ease-in-out;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-scale:active {
+  transform: scale(0.98);
+}
+
+/* Animaciones para botones */
+.button-animation {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.button-animation::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.button-animation:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+/* Keyframes para animaciones */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) {
+  .hover-scale:hover {
+    transform: none;
+  }
+  
+  /* Aumentar tamaño de elementos interactivos para mejor experiencia táctil */
+  button, .button, input[type="checkbox"], input[type="radio"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Soporte para preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
